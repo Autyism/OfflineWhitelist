@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "io.github.autyi6969.offlinewhitelist.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"server": [
+		"WhitelistCommandInvoker"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
