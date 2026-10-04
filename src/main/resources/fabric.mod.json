@@ -3,7 +3,7 @@
 	"id": "offlinewhitelist",
 	"version": "${version}",
 	"name": "Offline Whitelist",
-	"description": "On servers with online-mode=false, /whitelist add and /whitelist remove use the offline UUID of exactly the name you type instead of looking it up at Mojang, so whitelisted players can actually join. Online-mode servers are not affected.",
+	"description": "Makes an offline-mode server treat premium players the way an online-mode server would: each premium account keeps one UUID and its player data, even after the account is renamed or the server switches online-mode; premium skins and capes show up; and /whitelist, /op, /deop, /ban and /pardon cover both the premium and the offline UUID of a player.",
 	"authors": [
 		"Autyism"
 	],

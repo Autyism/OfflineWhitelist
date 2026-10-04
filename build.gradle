@@ -14,6 +14,46 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	testImplementation "org.junit.jupiter:junit-jupiter:5.11.4"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.11.4"
+}
+
+test {
+	useJUnitPlatform()
+}
+
+// Dev-only client that joins a copy of a real server and records what it sees (src/clienttest).
+// Never part of the release jar. Run: gradlew runClientTest -PowUser=<name> [-PowServer=host:port] [-PowOut=dir]
+sourceSets {
+	clienttest {
+		compileClasspath += sourceSets.main.compileClasspath
+		runtimeClasspath += sourceSets.main.runtimeClasspath
+	}
+}
+
+loom {
+	mods {
+		"offlinewhitelist" {
+			sourceSet sourceSets.main
+		}
+		"offlinewhitelist_clienttest" {
+			sourceSet sourceSets.clienttest
+		}
+	}
+	runs {
+		clientTest {
+			client()
+			configName = "Client test"
+			source sourceSets.clienttest
+			runDir "run/clienttest"
+			ideConfigGenerated false
+			programArgs "--username", (project.findProperty("owUser") ?: "Autyism").toString(),
+					"--quickPlayMultiplayer", (project.findProperty("owServer") ?: "localhost:25566").toString(),
+					"--width", "1280", "--height", "720"
+			vmArg "-Dowtest.out=" + (project.findProperty("owOut") ?: "owtest").toString()
+		}
+	}
 }
 
 processResources {

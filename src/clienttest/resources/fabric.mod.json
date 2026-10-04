@@ -1,0 +1,17 @@
+{
+	"schemaVersion": 1,
+	"id": "offlinewhitelist_clienttest",
+	"version": "1.0.0",
+	"name": "Offline Whitelist client test",
+	"description": "Dev only: joins a test server and records the player's UUID, permissions and skin.",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"io.github.autyism.offlinewhitelist.clienttest.ClientTest"
+		]
+	},
+	"depends": {
+		"fabricloader": "*",
+		"fabric-lifecycle-events-v1": "*"
+	}
+}

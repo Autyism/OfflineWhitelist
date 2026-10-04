@@ -1,66 +1,46 @@
 package io.github.autyism.offlinewhitelist;
 
-import java.util.Collection;
-import java.util.List;
+import java.nio.file.Path;
 
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.context.ParsedCommandNode;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.github.autyism.offlinewhitelist.mixin.WhitelistCommandInvoker;
+import io.github.autyism.offlinewhitelist.identity.Identities;
+import io.github.autyism.offlinewhitelist.identity.LookupCache;
+import io.github.autyism.offlinewhitelist.identity.MojangApi;
+import io.github.autyism.offlinewhitelist.identity.Resolver;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.command.argument.GameProfileArgumentType;
-import net.minecraft.server.PlayerConfigEntry;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.StringHelper;
+import net.fabricmc.loader.api.FabricLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * In offline mode, vanilla still asks Mojang for the UUID of a name typed into /whitelist, and only
- * falls back to the offline UUID (of the lower-cased name) when Mojang has no such player. Offline
- * players log in with the offline UUID of their exact name, so those entries never match.
- *
- * <p>This re-attaches the commands of the existing {@code /whitelist add|remove <targets>} nodes
- * (Brigadier merges nodes of the same name and keeps vanilla's permission check and suggestions).
- * In offline mode a typed name becomes the offline UUID of exactly that name; selectors such as
- * {@code @a} still resolve to the online players. In online mode vanilla behaviour is unchanged.
+ * Makes offline-mode servers treat premium players properly:
+ * <ul>
+ * <li>each premium account keeps one UUID on the server, so renaming the account or switching online-mode
+ * keeps its player data ({@link io.github.autyism.offlinewhitelist.identity.Resolver});</li>
+ * <li>premium players get their skin and cape, signed by Mojang ({@link LoginFlow});</li>
+ * <li>whitelist, op, ban and pardon act on every UUID of a player ({@link Commands}, {@link ListSync}).</li>
+ * </ul>
  */
 public class OfflineWhitelist implements DedicatedServerModInitializer {
-	private static final String TARGETS = "targets";
+	public static final Logger LOGGER = LoggerFactory.getLogger("Offline Whitelist");
+	private static Resolver resolver;
+
+	public static Resolver resolver() {
+		return resolver;
+	}
 
 	@Override
 	public void onInitializeServer() {
+		Path dir = FabricLoader.getInstance().getConfigDir().resolve("offlinewhitelist");
+		// a broken identities file stops the server here, before anyone can join with the wrong UUID
+		Identities identities = Identities.load(dir.resolve("identities.json"));
+		LookupCache cache = LookupCache.load(dir.resolve("lookup-cache.json"));
+		resolver = new Resolver(identities, cache, new MojangApi());
+		LOGGER.info("[Offline Whitelist] {} premium players known", identities.all().size());
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-			if (!environment.dedicated) {
-				return;
+			if (environment.dedicated) {
+				Commands.register(dispatcher);
 			}
-			dispatcher.register(CommandManager.literal("whitelist")
-					.then(CommandManager.literal("add")
-							.then(CommandManager.argument(TARGETS, GameProfileArgumentType.gameProfile())
-									.executes(context -> WhitelistCommandInvoker.offlinewhitelist$executeAdd(context.getSource(), targets(context)))))
-					.then(CommandManager.literal("remove")
-							.then(CommandManager.argument(TARGETS, GameProfileArgumentType.gameProfile())
-									.executes(context -> WhitelistCommandInvoker.offlinewhitelist$executeRemove(context.getSource(), targets(context))))));
 		});
-	}
-
-	private static Collection<PlayerConfigEntry> targets(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-		String typed = typedTargets(context);
-		if (context.getSource().getServer().isOnlineMode() || typed == null || typed.startsWith("@")) {
-			return GameProfileArgumentType.getProfileArgument(context, TARGETS);
-		}
-		if (!StringHelper.isValidPlayerName(typed)) {
-			throw GameProfileArgumentType.UNKNOWN_PLAYER_EXCEPTION.create();
-		}
-		return List.of(PlayerConfigEntry.fromNickname(typed));
-	}
-
-	private static String typedTargets(CommandContext<ServerCommandSource> context) {
-		for (ParsedCommandNode<ServerCommandSource> node : context.getNodes()) {
-			if (TARGETS.equals(node.getNode().getName())) {
-				return node.getRange().get(context.getInput());
-			}
-		}
-		return null;
 	}
 }
