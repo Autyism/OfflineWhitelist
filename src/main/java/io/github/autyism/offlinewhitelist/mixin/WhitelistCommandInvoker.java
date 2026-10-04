@@ -1,4 +1,4 @@
-package io.github.autyi6969.offlinewhitelist.mixin;
+package io.github.autyism.offlinewhitelist.mixin;
 
 import java.util.Collection;
 

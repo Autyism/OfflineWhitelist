@@ -3,14 +3,22 @@
 	"id": "offlinewhitelist",
 	"version": "${version}",
 	"name": "Offline Whitelist",
-	"description": "On an offline-mode server, /whitelist add and /whitelist remove use the offline UUID of the name you type instead of looking it up at Mojang.",
+	"description": "On servers with online-mode=false, /whitelist add and /whitelist remove use the offline UUID of exactly the name you type instead of looking it up at Mojang, so whitelisted players can actually join. Online-mode servers are not affected.",
 	"authors": [
-		"Autyi6969"
+		"Autyism"
 	],
-	"license": "GPL-3.0",
+	"contact": {
+		"homepage": "https://github.com/Autyism/OfflineWhitelist",
+		"sources": "https://github.com/Autyism/OfflineWhitelist",
+		"issues": "https://github.com/Autyism/OfflineWhitelist/issues"
+	},
+	"license": "GPL-3.0-only",
+	"icon": "assets/offlinewhitelist/icon.png",
 	"environment": "server",
 	"entrypoints": {
-		"server": ["io.github.autyi6969.offlinewhitelist.OfflineWhitelist"]
+		"server": [
+			"io.github.autyism.offlinewhitelist.OfflineWhitelist"
+		]
 	},
 	"mixins": [
 		"offlinewhitelist.mixins.json"

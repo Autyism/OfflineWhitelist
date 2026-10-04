@@ -1,4 +1,4 @@
-package io.github.autyi6969.offlinewhitelist;
+package io.github.autyism.offlinewhitelist;
 
 import java.util.Collection;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.github.autyi6969.offlinewhitelist.mixin.WhitelistCommandInvoker;
+import io.github.autyism.offlinewhitelist.mixin.WhitelistCommandInvoker;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.GameProfileArgumentType;
