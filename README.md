@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/icon.png" width="128" alt="icon"></p>
+<p align="center"><img src="docs/icon_transparent.png" width="128" alt="icon"></p>
 <h1 align="center">Offline Whitelist</h1>
 <p align="center">Premium players on an offline-mode server: one UUID per account, real skins and capes, and a whitelist that works.</p>
 <p align="center">让离线服像正版服一样对待正版玩家：每个账号一个固定的 UUID、显示正版皮肤和披风、白名单真正管用。</p>
